@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentiment Analysis</title>
+    <meta name="description" content="Minimalist emotion analysis tool.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <main class="container">
+        <header>
+            <h1>Sentiment Analysis</h1>
+            <p>Analyze text emotion and nuance.</p>
+        </header>
+
+        <section class="input-section">
+            <div class="textarea-wrapper">
+                <textarea id="textInput" placeholder="Type something to analyze... (e.g. 'Oh great, another perfectly sunny day when I have to work inside.')" rows="4"></textarea>
+                <div class="textarea-glow"></div>
+            </div>
+            <button id="analyzeBtn" class="primary-btn">
+                <span class="btn-text">Analyze Emotion</span>
+                <span class="loader hidden"></span>
+            </button>
+        </section>
+
+        <section id="resultsSection" class="results-section hidden">
+            <div class="result-card main-emotion">
+                <h3>Final Emotion</h3>
+                <div id="finalEmotionValue" class="emotion-value">-</div>
+                <div class="intensity-bar-container">
+                    <div id="intensityBar" class="intensity-bar"></div>
+                </div>
+                <p id="intensityText" class="intensity-text">Intensity: -/10</p>
+            </div>
+            
+            <div class="result-grid">
+                <div class="result-card sub-card">
+                    <h4>Surface Lexical</h4>
+                    <p id="surfaceEmotion">-</p>
+                </div>
+                <div class="result-card sub-card">
+                    <h4>Contextual Nuance</h4>
+                    <p id="nuanceExplanation">-</p>
+                </div>
+                <div class="result-card sub-card">
+                    <h4>Sarcasm Detected</h4>
+                    <div id="sarcasmBadge" class="badge false">False</div>
+                </div>
+                <div class="result-card sub-card metrics-card">
+                    <h4>System Metrics</h4>
+                    <ul class="metrics-list">
+                        <li>Latency: <span id="metricLatency" class="metric-val">0ms</span></li>
+                        <li>Zero-Routed: <span id="metricCache" class="metric-val badge false">False</span></li>
+                        <li>Fallback: <span id="metricFallback" class="metric-val badge false">False</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>

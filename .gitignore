@@ -4,6 +4,26 @@ __pycache__/
 *.pyo
 *.pyd
 
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Database & State (DO NOT COMMIT)
+data/chroma_db/
+src/emotion_analysis/persistence/*.sqlite
+persistence/memory.sqlite
+*.db
+*.sqlite3
+
+# Logs
+*.log
+logs/
+
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints/
 
@@ -16,29 +36,8 @@ build_vs/
 .DS_Store
 Thumbs.db
 
-# C++ build artifacts
-*.exe
-*.out
-*.obj
-*.o
-*.a
-*.lib
-*.dll
-*.so
-*.dylib
-
-# CMake generated files
-CMakeFiles/
-CMakeCache.txt
-cmake_install.cmake
-Makefile
-
 # Visual Studio files
 .vscode/
 .vs/
 *.vcxproj*
 *.sln
-
-# TensorFlow C library and headers (users must add these themselves)
-cpp_client/include/
-cpp_client/lib/

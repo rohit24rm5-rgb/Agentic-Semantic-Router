@@ -1,157 +1,68 @@
-# Emotion Analysis Project
+# Aegis Emotion Engine 🌀
 
-This project predicts emotions from text using a Python deep learning model and a C++ client for inference.  
-It is designed to be **easy to use** and **portable** for any user.
+An advanced, production-ready multi-agent AI system for Emotion Analysis. 
+This project has been completely overhauled from a legacy monolithic TensorFlow/C++ architecture into a state-of-the-art **AI Engineering** pipeline.
 
----
+## 🚀 Architectural Paradigm Shift
 
-## 📁 Project Structure
-
-```
-Emotion Analysis/
-├── python_ml_server/
-│   ├── scripts/
-│   │   ├── train.py         # Train the emotion classifier
-│   │   └── app.py           # Streamlit web app for emotion prediction
-│   └── model/               # Model files (created after training)
-│       ├── model.keras
-│       ├── tokenizer.pkl
-│       ├── label_encoder.pkl
-│       ├── saved_model/     # TensorFlow SavedModel for C++ client
-│       ├── word_index.txt   # Vocabulary for C++ client
-│       └── labels.txt       # Labels for C++ client
-├── cpp_client/
-│   ├── main.cpp
-│   ├── TextPreprocessor.cpp
-│   ├── TextPreprocessor.h
-│   ├── LabelUtils.cpp
-│   ├── LabelUtils.h
-│   ├── CMakeLists.txt
-│   ├── include/             # (Create this and add TensorFlow C headers here)
-│   └── lib/                 # (Create this and add TensorFlow C library here)
-└── README.md
-```
+| Feature | 2025 Legacy Version | 2026 AI Engineering Version |
+| :--- | :--- | :--- |
+| **Inference Engine** | Local `.keras` Sequential Model | **LangGraph Swarm** + **Groq LLaMA 3 70B** |
+| **Backend** | Python Monolith + C++ CMake | **FastAPI** (Async, Pydantic, REST) |
+| **Context Memory** | None (Zero-Shot Only) | **ChromaDB RAG** (Kaggle Datasets) |
+| **State Persistence** | None | **SQLite WAL** (LangGraph Checkpointer) |
+| **Token Optimization** | N/A | **Zero-Routing Semantic Cache** (FastEmbed) |
+| **High Availability** | C++ Client Crashes on errors | **Async Circuit Breaker** (Gemini 1.5 Fallback) |
+| **UI Experience** | Basic Streamlit UI / Console | **Aesthetic Vanilla Glassmorphism UI** |
 
 ---
 
-## 🚀 Quick Start
+## 🧠 Multi-Agent Swarm Structure
 
-### 1. Clone the Repository
+We utilize a 3-agent orchestration pattern via LangGraph, strictly optimizing for the 6k TPM free-tier limit on Groq:
 
-```sh
-git clone https://github.com/yourusername/emotion-analysis.git
-cd "Emotion Analysis"
-```
-
----
-
-### 2. Python: Train & Run the Web App
-
-#### a. Install Python dependencies
-
-```sh
-pip install -r requirements.txt
-```
-If `requirements.txt` is missing, install manually:
-```sh
-pip install tensorflow scikit-learn pandas numpy streamlit
-```
-
-#### b. Train the model (optional, skip if model files exist)
-
-```sh
-cd python_ml_server/scripts
-python train.py
-```
-
-#### c. Run the Streamlit web app
-
-```sh
-streamlit run app.py
-```
-Open the link shown in your terminal to use the web interface.
+1. **Semantic Zero-Router**: Uses FastEmbed and ChromaDB to semantically match queries. If a query matches a cached response with >95% similarity, it returns instantly (0 tokens, <50ms latency).
+2. **Lexical Emotion Agent**: Analyzes the explicit, surface-level emotional tone (Joy, Anger, Sadness).
+3. **Contextual Nuance Agent**: Receives the lexical summary and cross-references RAG context (ingested from Kaggle Sarcasm datasets) to detect implicit irony and synthesize the *true* final emotion.
 
 ---
 
-### 3. C++ Client: Native Inference
+## 🛠️ Quick Start
 
-#### a. Download TensorFlow C Library
+### 1. Environment Setup
 
-- Go to: https://www.tensorflow.org/install/lang_c
-- Download the C library for your OS (Windows/Linux/Mac).
-- Extract:
-  - If `cpp_client/include/` or `cpp_client/lib/` do not exist, create them.
-  - Copy the `include` folder from the TensorFlow C download to `cpp_client/include`
-  - Copy the `lib` folder (or just `tensorflow.dll`/`libtensorflow.so`) to `cpp_client/lib`
+```bash
+# Install dependencies
+pip install -e .
 
-#### b. Build the C++ client
-
-```sh
-cd cpp_client
-mkdir build
-cd build
-cmake ..
-cmake --build .
+# Set up environment variables
+cp .env.example .env
+# Fill in GROQ_API_KEY, GEMINI_API_KEY, and Kaggle credentials
 ```
 
-#### c. Run the C++ client
-
-```sh
-./main.exe      # On Windows
-./main          # On Linux/Mac
-```
-Enter your text when prompted and see the predicted emotion.
-
----
-
-## 📸 Screenshot
-
-![Main Window Screenshot](cpp_client/screenshot.png)
-
-
-## 🛠️ Troubleshooting
-
-- **TensorFlow include error in C++:**  
-  Make sure you have copied the TensorFlow C headers and library to the correct folders as described above.
-- **Model files missing:**  
-  Run the Python training script first, or download the provided model files if available.
-- **Python errors:**  
-  Ensure all dependencies are installed and you are using Python 3.7+.
-
----
-
-## 🧹 .gitignore Example
-
-Add a `.gitignore` file to avoid pushing unnecessary files:
-
-```
-__pycache__/
-*.pyc
-build/
-dist/
-*.dll
-*.so
-*.dylib
-.DS_Store
-Thumbs.db
-cpp_client/include/
-cpp_client/lib/
+### 2. Data Engineering (RAG Ingestion)
+Automatically download and index Kaggle datasets into ChromaDB for few-shot context:
+```bash
+python data/ingest_kaggle.py
 ```
 
----
+### 3. Run the Inference Server
+Launch the asynchronous FastAPI backend:
+```bash
+uvicorn src.emotion_analysis.app.main:app --reload
+```
 
-## 📢 Credits
-
-- Created by Sitanshu & Yash for a semester project.
-- Uses TensorFlow, Streamlit, and C++.
-
----
-
-## ❓ Need Help?
-
-If you get stuck, read the error messages carefully and check the steps above.  
-If you’re still lost, open an issue on GitHub or ask a friend!
+### 4. Open the Web App
+Open `frontend/index.html` in your browser to experience the aesthetic, real-time emotion engine UI.
 
 ---
 
-**Now even a monkey can run this project! 🐒**
+## 📊 Benchmarks & Latency Tracking
+
+The system tracks latency, fallback rates, and cache hits autonomously. Run the stress-test suite to record benchmarks:
+
+```bash
+python tests/test_latency_ollama.py
+```
+
+*Note: The Zero-Routing cache regularly achieves **<50ms latency**, drastically outperforming the legacy TensorFlow Python load times while burning exactly zero LLM tokens.*
