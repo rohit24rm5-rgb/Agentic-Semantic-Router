@@ -1,6 +1,6 @@
 # Agentic Semantic Router
 
-A production-grade, highly concurrent, Multi-Agent AI architecture designed to capture extreme nuance in human text.
+**Agentic Semantic Router** is a highly concurrent, production-grade Multi-Agent AI architecture purpose-built for **Advanced Sentiment and Emotion Analysis**. It is designed to go beyond basic positive/negative classification and capture extreme psychological nuance in human text (such as sarcasm, passive aggression, and paradoxical joy).
 
 ## Architectural Overview
 
