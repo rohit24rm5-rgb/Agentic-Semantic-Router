@@ -58,7 +58,9 @@ While the architecture is highly resilient, there are ongoing areas for improvem
 Below are examples of the system successfully parsing complex edge cases:
 
 ![Edge Case 1: The Hollow Victory](assets/screenshot_1.png)
-*The Contextual Agent successfully detecting the paradoxical shift from career success to profound emptiness, outputting 'Bittersweet' instead of 'Joy'.*
 
-![Edge Case 2: Sarcastic Anger](assets/screenshot_2.png)
-*The system correctly identifying the contrast between positive phrasing ('Oh fantastic') and a universally negative anchor event (flight delay) to flag Sarcasm and output 'Sarcastic Anger'.*
+*The Contextual Agent successfully identifies the paradoxical despair of achieving a hollow victory, overriding the Lexical baseline to output 'Bittersweet'.*
+
+![Edge Case 2: The Deadpan Delay](assets/screenshot_2.png)
+
+*The system correctly identifies the deadpan sarcasm of a flight delay, recognizing the contradiction and overriding the Lexical Agent.*
