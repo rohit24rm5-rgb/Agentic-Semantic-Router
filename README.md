@@ -57,8 +57,8 @@ While the architecture is highly resilient, there are ongoing areas for improvem
 
 Below are examples of the system successfully parsing complex edge cases:
 
-![Edge Case 1: Tears of Joy](assets/screenshot_1.png)
-*The Contextual Agent successfully overriding a physical reaction (crying) due to explicit positive statements.*
+![Edge Case 1: The Hollow Victory](assets/screenshot_1.png)
+*The Contextual Agent successfully detecting the paradoxical shift from career success to profound emptiness, outputting 'Bittersweet' instead of 'Joy'.*
 
-![Edge Case 2: Passive Aggression](assets/screenshot_2.png)
-*The system correctly identifying sarcastic outrage and overriding the Lexical Agent.*
+![Edge Case 2: Sarcastic Anger](assets/screenshot_2.png)
+*The system correctly identifying the contrast between positive phrasing ('Oh fantastic') and a universally negative anchor event (flight delay) to flag Sarcasm and output 'Sarcastic Anger'.*
