@@ -1,6 +1,27 @@
 # Agentic Semantic Router
 
-**Agentic Semantic Router** is a highly concurrent, production-grade Multi-Agent AI architecture purpose-built for **Advanced Sentiment and Emotion Analysis**. It is designed to go beyond basic positive/negative classification and capture extreme psychological nuance in human text (such as sarcasm, passive aggression, and paradoxical joy).
+**Agentic Semantic Router** is a highly concurrent, robust Multi-Agent AI architecture purpose-built for **Advanced Sentiment and Emotion Analysis**. It is designed to go beyond basic positive/negative classification and capture extreme psychological nuance in human text (such as sarcasm, passive aggression, and paradoxical joy).
+
+## Getting Started in 5 Minutes
+
+The easiest way to run the Agentic Semantic Router is via Docker.
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/sitanshukr08/Agentic-Semantic-Router.git
+   cd Agentic-Semantic-Router
+   ```
+2. **Configure Environment:**
+   Copy the example environment file and add your API keys:
+   ```bash
+   cp .env.example .env
+   ```
+   *(Note: `GROQ_API_KEY` is used for the primary LangGraph agents. `GOOGLE_API_KEY` is required for the Circuit Breaker's fallback chain via `langchain-google-genai`.)*
+3. **Run with Docker:**
+   ```bash
+   docker-compose up --build
+   ```
+   The FastAPI server will be available at `http://localhost:8000`.
 
 ## Architectural Overview
 
@@ -27,10 +48,10 @@ To drastically reduce latency and API costs, the system implements a localized S
 *   **Performance Impact:** This reduces response latency from ~3,500ms down to ~100ms.
 
 ### 4. Circuit Breaker & Fallback Architecture
-To ensure 100% uptime, the system implements a stateful Circuit Breaker pattern.
+To maximize availability, the system implements a stateful Circuit Breaker pattern.
 *   **Telemetry Tracking:** A global `BenchmarkTracker` monitors the success and failure rates of the primary LLM provider (Groq). 
 *   **Fail-Fast Mechanism:** If the primary provider triggers a rate limit (HTTP 429) or an outage, the circuit trips to the `OPEN` state. 
-*   **Graceful Degradation:** Once open, all traffic is instantly re-routed to a pre-cached Fallback Chain. This fallback relies on a highly conservative prompt to provide safe, baseline sentiment analysis until the primary circuit heals.
+*   **Graceful Degradation:** Once open, all traffic is instantly re-routed to a pre-cached Fallback Chain (powered by `langchain-google-genai`). This fallback relies on a highly conservative prompt to provide safe, baseline sentiment analysis until the primary circuit heals.
 
 ### 5. Asynchronous Concurrency
 The entire backend was built for high throughput.
@@ -39,25 +60,25 @@ The entire backend was built for high throughput.
 
 ## Performance Metrics
 
-By implementing this architecture, the engine achieves enterprise-grade benchmarks:
+By implementing this architecture, the engine achieves robust performance benchmarks:
 *   **API Latency Reduction:** Semantic Caching drops response times from **~3,500ms** (Standard API Call) down to **~100ms** (Local Vector Retrieval), a **97% reduction in latency** and a 100% reduction in LLM token costs for repeat queries.
-*   **Failover Speed:** The Stateful Circuit Breaker detects a provider outage (HTTP 429/500) and routes traffic to the Fallback Chain in **< 50ms**, ensuring zero dropped requests during traffic spikes.
+*   **Failover Speed:** The Stateful Circuit Breaker detects a provider outage (HTTP 429/500) and routes traffic to the Fallback Chain in **< 50ms**, ensuring continuity during traffic spikes.
 *   **Context Assembly:** Multi-index RAG aggregates context from over 160,000 embedded datapoints in **< 200ms**.
 
 ## System Evolution & History
 
 Originally, this repository hosted an older monolithic architecture utilizing a standard Python Machine Learning server paired with a heavy C++ client. That legacy system relied on basic, rigid ML models to predict emotion based on static vocabularies. It suffered from severe limitations:
 *   Inability to understand sarcasm or complex idioms.
-*   Required compiling massive C++ and OpenGL dependencies.
+*   Required compiling heavy C++ and OpenGL dependencies.
 *   Static knowledge base unable to adapt to modern internet context.
 
-The heavy C++ client was completely scrapped in favor of a clean, minimalist Vanilla JS/CSS frontend. The backend was refactored into the current Python/FastAPI architecture, replacing static ML models with the intelligent LangGraph swarm.
+The legacy client and ML server were replaced with a lightweight web frontend. The backend was completely refactored into the current Python/FastAPI architecture, replacing static ML models with the LangGraph swarm.
 
 ## Future Roadmap
 
 While the architecture is highly resilient, there are ongoing areas for improvement:
 1.  **Rate Limit Bottlenecks:** Heavy load testing (via Locust) currently triggers API rate limits on free-tier LLM providers. Transitioning the primary or fallback chains to fully localized, quantized models (e.g., Ollama) would remove all network dependencies and rate limits.
-2.  **Embedding Latency:** Local text embeddings (via `sentence-transformers`) require CPU computation. Offloading embedding generation to a dedicated GPU would further reduce the cold-start RAG latency.
+2.  **Embedding Latency:** Local text embeddings (via `fastembed`) require CPU computation. Offloading embedding generation to a dedicated GPU would further reduce the cold-start RAG latency.
 3.  **Language Expansion:** The Contextual Nuance Agent is heavily prompt-engineered for English psychological rules. Scaling to multi-language support will require localized RAG datasets and language-specific nuance prompting.
 
 ## Demonstrations
