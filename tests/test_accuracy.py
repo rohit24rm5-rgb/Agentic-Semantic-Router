@@ -67,7 +67,7 @@ async def test_contextual_override_accuracy():
         
         if case["expect_override"]:
             # If the engine correctly detects nuance, the final emotion should differ from the naive lexical interpretation
-            assert surface != final or sarcastic is True, \\
+            assert surface != final or sarcastic is True, \
                 f"Contextual Agent failed to override Lexical Agent. Both returned {final}."
                 
         print("PASS")
