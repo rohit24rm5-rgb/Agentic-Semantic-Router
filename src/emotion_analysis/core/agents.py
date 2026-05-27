@@ -4,11 +4,7 @@ from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
 from pydantic import BaseModel, Field
-
-groq_api_key = os.environ.get("GROQ_API_KEY", "")
-if not groq_api_key:
-    raise ValueError("CRITICAL: GROQ_API_KEY environment variable is missing. Halting startup.")
-llm = ChatGroq(temperature=0, model_name="llama-3.1-8b-instant", groq_api_key=groq_api_key, max_retries=0)
+from src.emotion_analysis.core.provider_manager import provider_manager
 
 class LexicalOutput(BaseModel):
     surface_emotion: str = Field(description="The primary emotion detected (e.g. Joy, Sadness, Anger)")
@@ -35,6 +31,7 @@ LEXICAL_PROMPT = ChatPromptTemplate.from_messages([
 ])
 
 def run_lexical_agent(query: str) -> LexicalOutput:
+    llm = ChatGroq(temperature=0, model_name="llama-3.1-8b-instant", groq_api_key=provider_manager.get_active_groq_key(), max_retries=0)
     parser = JsonOutputParser(pydantic_object=LexicalOutput)
     prompt = LEXICAL_PROMPT.partial(format_instructions=parser.get_format_instructions())
     chain = prompt | llm | parser
@@ -61,6 +58,7 @@ CONTEXTUAL_PROMPT = ChatPromptTemplate.from_messages([
 ])
 
 def run_contextual_agent(query: str, lexical_summary: dict, rag_context: str) -> ContextualOutput:
+    llm = ChatGroq(temperature=0, model_name="llama-3.1-8b-instant", groq_api_key=provider_manager.get_active_groq_key(), max_retries=0)
     parser = JsonOutputParser(pydantic_object=ContextualOutput)
     prompt = CONTEXTUAL_PROMPT.partial(format_instructions=parser.get_format_instructions())
     chain = prompt | llm | parser

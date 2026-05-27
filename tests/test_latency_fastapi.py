@@ -35,7 +35,8 @@ def run_fastapi_latency_test(iterations: int = 5):
                 if res.status_code == 200:
                     data = res.json()
                     backend_latency = data["metrics"]["latency_ms"]
-                    query_latencies.append(backend_latency)
+                    active_prov = data["metrics"].get("active_provider", "Unknown")
+                    query_latencies.append((backend_latency, active_prov))
                     all_latencies.append(backend_latency)
                 else:
                     print(f"  [Iter {i+1}] Error: {res.status_code}")
@@ -43,9 +44,11 @@ def run_fastapi_latency_test(iterations: int = 5):
                 print(f"  [Iter {i+1}] Request failed: {e}")
                 
         if query_latencies:
-            avg_lat = statistics.mean(query_latencies)
-            p95_lat = statistics.quantiles(query_latencies, n=100)[94] if len(query_latencies) >= 2 else query_latencies[0]
-            print(f"  -> Avg Latency: {avg_lat:.2f}ms | P95 Latency: {p95_lat:.2f}ms")
+            lat_values = [q[0] for q in query_latencies]
+            prov_names = list(set([q[1] for q in query_latencies]))
+            avg_lat = statistics.mean(lat_values)
+            p95_lat = statistics.quantiles(lat_values, n=100)[94] if len(lat_values) >= 2 else lat_values[0]
+            print(f"  -> Avg Latency: {avg_lat:.2f}ms | P95 Latency: {p95_lat:.2f}ms | Provider(s): {', '.join(prov_names)}")
             
     if all_latencies:
         print("\n" + "=" * 50)

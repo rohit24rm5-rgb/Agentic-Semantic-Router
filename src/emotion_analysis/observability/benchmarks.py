@@ -79,7 +79,7 @@ class BenchmarkTracker:
         self.lock = threading.Lock()
         self.cb = CircuitBreaker()
 
-    def log_request(self, query: str, final_output: dict, latency_ms: float, is_fallback: bool, cache_hit: bool):
+    def log_request(self, query: str, final_output: dict, latency_ms: float, is_fallback: bool, cache_hit: bool, active_provider: str):
         metric = {
             "query_length": len(query),
             "latency_ms": latency_ms,
@@ -91,7 +91,7 @@ class BenchmarkTracker:
         with self.lock:
             self.metrics.append(metric)
         
-        logger.info(f"BENCHMARK: Latency: {latency_ms:.2f}ms | Cache Hit: {cache_hit} | Fallback: {is_fallback}")
+        logger.info(f"BENCHMARK: Latency: {latency_ms:.2f}ms | Cache Hit: {cache_hit} | Provider: {active_provider}")
 
     def get_summary(self) -> Dict[str, Any]:
         with self.lock:

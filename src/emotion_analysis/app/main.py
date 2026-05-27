@@ -17,6 +17,7 @@ from src.emotion_analysis.core.graph import emotion_workflow
 from src.emotion_analysis.persistence.memory import get_checkpointer
 from src.emotion_analysis.observability.benchmarks import benchmark_tracker
 from src.emotion_analysis.core.router import semantic_router
+from src.emotion_analysis.core.provider_manager import provider_manager
 
 logger = logging.getLogger("API")
 
@@ -66,22 +67,17 @@ class AnalyzeRequest(BaseModel):
             raise ValueError("session_id cannot exceed 128 characters")
         return v
 
-fallback_chain = None
-fallback_parser = None
-
 async def run_llm_fallback(text: str) -> Dict:
-    global fallback_chain, fallback_parser
-    # Cache the fallback chain so we don't reinstantiate ChatGroq on every trip
-    if fallback_chain is None:
-        from langchain_groq import ChatGroq
-        from langchain_core.prompts import ChatPromptTemplate
-        from langchain_core.output_parsers import JsonOutputParser
-        from src.emotion_analysis.core.agents import ContextualOutput
-        
-        llm = ChatGroq(model="llama-3.1-8b-instant", temperature=0, max_retries=0)
-        fallback_parser = JsonOutputParser(pydantic_object=ContextualOutput)
-        prompt = ChatPromptTemplate.from_messages([
-            ("system", """You are the Emotion Analysis Fallback Agent. Your role is to act as the final, reliable safety net in a multi-agent classification pipeline.
+    from langchain_google_genai import ChatGoogleGenerativeAI
+    from langchain_core.prompts import ChatPromptTemplate
+    from langchain_core.output_parsers import JsonOutputParser
+    from src.emotion_analysis.core.agents import ContextualOutput
+    
+    gemini_key = provider_manager.get_active_gemini_key()
+    llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0, google_api_key=gemini_key, max_retries=0)
+    parser = JsonOutputParser(pydantic_object=ContextualOutput)
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", """You are the Emotion Analysis Fallback Agent. Your role is to act as the final, reliable safety net in a multi-agent classification pipeline.
 
 ### DIRECTIVES
 1. Provide a robust, conservative assessment of the text's emotion.
@@ -91,13 +87,11 @@ async def run_llm_fallback(text: str) -> Dict:
 ### OUTPUT INSTRUCTIONS
 Output strictly in valid JSON according to this schema. Do not include introductory text, markdown formatting, or explanations outside the JSON structure:
 {format_instructions}"""),
-            ("human", "{query}")
-        ])
-        fallback_chain = prompt | llm | fallback_parser
+        ("human", "{query}")
+    ])
+    fallback_chain = prompt | llm | parser
 
-    result = await fallback_chain.ainvoke({"query": text, "format_instructions": fallback_parser.get_format_instructions()})
-    
-    from src.emotion_analysis.core.agents import ContextualOutput
+    result = await fallback_chain.ainvoke({"query": text, "format_instructions": parser.get_format_instructions()})
     return ContextualOutput(**result).model_dump()
 
 @app.post("/analyze")
@@ -123,7 +117,20 @@ async def analyze_emotion(req: AnalyzeRequest):
                 logger.debug("Compiling graph")
                 graph = emotion_workflow.compile(checkpointer=checkpointer)
                 logger.debug("Invoking graph")
-                result = await graph.ainvoke({"query": req.text, "cached_result": None, "lexical_summary": None, "contextual_summary": None, "final_output": None}, config)
+                
+                try:
+                    result = await graph.ainvoke({"query": req.text, "cached_result": None, "lexical_summary": None, "contextual_summary": None, "final_output": None}, config)
+                except Exception as e:
+                    if "429" in str(e) or "rate" in str(e).lower():
+                        logger.warning("Groq Rate Limit hit. Attempting key rotation...")
+                        if provider_manager.rotate_groq_key():
+                            logger.info("Retrying with backup Groq key.")
+                            result = await graph.ainvoke({"query": req.text, "cached_result": None, "lexical_summary": None, "contextual_summary": None, "final_output": None}, config)
+                        else:
+                            raise e
+                    else:
+                        raise e
+                        
                 logger.debug("Graph invoked")
                 
                 if result.get("cached_result"):
@@ -133,7 +140,7 @@ async def analyze_emotion(req: AnalyzeRequest):
                 benchmark_tracker.cb.record_success()
                 
         except Exception as e:
-            logger.error(f"Groq Swarm failed: {str(e)}")
+            logger.error(f"Groq Swarm failed completely: {str(e)}")
             benchmark_tracker.cb.record_failure()
             allow_primary = False # Trigger fallback
             
@@ -141,22 +148,34 @@ async def analyze_emotion(req: AnalyzeRequest):
         is_fallback = True
         benchmark_tracker.cb.record_fallback()
         try:
-            fallback_out = await run_llm_fallback(req.text)
+            try:
+                fallback_out = await run_llm_fallback(req.text)
+            except Exception as fallback_e:
+                if "429" in str(fallback_e) or "rate" in str(fallback_e).lower():
+                    logger.warning("Gemini Rate Limit hit. Attempting key rotation...")
+                    if provider_manager.rotate_gemini_key():
+                        fallback_out = await run_llm_fallback(req.text)
+                    else:
+                        raise fallback_e
+                else:
+                    raise fallback_e
+                    
             final_output = {
                 "surface_emotion": fallback_out.get("final_emotion"),
                 "final_emotion": fallback_out.get("final_emotion"),
                 "is_sarcastic": fallback_out.get("is_sarcastic", False),
-                "nuance_explanation": fallback_out.get("nuance_explanation", "Generated via Llama 8B Fallback"),
+                "nuance_explanation": fallback_out.get("nuance_explanation", "Generated via Gemini Fallback"),
                 "intensity": 5
             }
         except Exception as fallback_e:
             latency_ms = (time.time() - start_time) * 1000
-            benchmark_tracker.log_request(req.text, {}, latency_ms, is_fallback, cache_hit)
+            benchmark_tracker.log_request(req.text, {}, latency_ms, is_fallback, cache_hit, provider_manager.get_active_provider_name(is_fallback))
             logger.error(f"CRITICAL: Primary circuit OPEN/Failed. Fallback failed with '{str(fallback_e)}'.")
             raise HTTPException(status_code=500, detail="Internal server error during emotion analysis.")
             
     latency_ms = (time.time() - start_time) * 1000
-    benchmark_tracker.log_request(req.text, final_output, latency_ms, is_fallback, cache_hit)
+    active_prov = provider_manager.get_active_provider_name(is_fallback)
+    benchmark_tracker.log_request(req.text, final_output, latency_ms, is_fallback, cache_hit, active_prov)
     
     return {
         "status": "success",
@@ -164,7 +183,8 @@ async def analyze_emotion(req: AnalyzeRequest):
         "metrics": {
             "latency_ms": latency_ms,
             "cache_hit": cache_hit,
-            "fallback_triggered": is_fallback
+            "fallback_triggered": is_fallback,
+            "active_provider": active_prov
         }
     }
 
