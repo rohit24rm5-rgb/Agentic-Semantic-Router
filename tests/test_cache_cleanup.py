@@ -17,7 +17,7 @@ def test_cache_cleanup():
     # Delete if they exist
     try:
         col.delete(ids=[expired_id, fresh_id])
-    except:
+    except Exception:
         pass
         
     now = time.time()

@@ -37,8 +37,7 @@ EDGE_CASES = [
     }
 ]
 
-@pytest.mark.asyncio
-async def test_contextual_override_accuracy():
+def test_contextual_override_accuracy():
     """
     Tests the core premise of the Multi-Agent engine: 
     Does the Contextual Nuance Agent successfully override the Surface Lexical Agent 
@@ -57,6 +56,9 @@ async def test_contextual_override_accuracy():
         
         data = response.json().get("data", {})
         
+        assert "surface_emotion" in data, "API response missing surface_emotion key"
+        assert "final_emotion" in data, "API response missing final_emotion key"
+        
         surface = data.get("surface_emotion", "")
         final = data.get("final_emotion", "")
         sarcastic = data.get("is_sarcastic", False)
@@ -69,5 +71,9 @@ async def test_contextual_override_accuracy():
             # If the engine correctly detects nuance, the final emotion should differ from the naive lexical interpretation
             assert surface != final or sarcastic is True, \
                 f"Contextual Agent failed to override Lexical Agent. Both returned {final}."
+                
+            # Assert on expected final emotion and lexical bias to ensure correctness
+            assert final == case["expected_final_emotion"], f"Expected final emotion {case['expected_final_emotion']}, got {final}"
+            assert surface in case["expected_lexical_bias"], f"Expected surface emotion in {case['expected_lexical_bias']}, got {surface}"
                 
         print("PASS")

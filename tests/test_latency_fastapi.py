@@ -1,7 +1,10 @@
 import time
 import sys
+import os
+import contextlib
 import requests
 import statistics
+from datetime import datetime
 
 # Make sure FastAPI is running on port 8000
 API_URL = "http://localhost:8000/analyze"
@@ -54,6 +57,8 @@ def run_fastapi_latency_test(iterations: int = 5):
 
 if __name__ == "__main__":
     print("Ensure Groq FastAPI server is running before executing.")
-    with open("benchmark_results.txt", "w") as f:
-        sys.stdout = f
-        run_fastapi_latency_test()
+    output_file = os.path.join(os.path.dirname(__file__), "benchmark_results.txt")
+    with open(output_file, "w") as f:
+        with contextlib.redirect_stdout(f):
+            print(f"Run Timestamp: {datetime.now().isoformat()}")
+            run_fastapi_latency_test()

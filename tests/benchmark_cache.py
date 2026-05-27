@@ -24,7 +24,7 @@ DATASET_B = [
     "I'm disgusted by this behavior.", "I am incredibly proud of you.",
     "I feel so lonely right now.", "This surprise is amazing!",
     "I'm feeling a bit under the weather.", "I am full of hope."
-] * 50 # 1000 items
+]
 
 THRESHOLDS = [0.05, 0.1, 0.15, 0.2, 0.25, 0.95]
 
