@@ -12,6 +12,24 @@ client = TestClient(app)
 
 EDGE_CASES = [
     {
+        "query": "I am so absolutely ecstatic and thrilled to announce that my startup completely ran out of funding today! Best news ever!",
+        "expected_lexical_bias": ["Joy", "Excitement", "Happiness"],
+        "expected_final_emotion": ["Despair", "Sarcasm", "Devastation"],
+        "expect_override": True
+    },
+    {
+        "query": "Oh wow, congratulations on getting exactly everything you wanted by stabbing me in the back. A truly beautiful outcome.",
+        "expected_lexical_bias": ["Joy", "Admiration", "Happiness", "Excitement"],
+        "expected_final_emotion": ["Anger", "Betrayal", "Sarcasm", "Resentment"],
+        "expect_override": True
+    },
+    {
+        "query": "This is wonderful! Just fantastic! I've been waiting all week for my brand new car to break down on the freeway.",
+        "expected_lexical_bias": ["Joy", "Excitement", "Happiness"],
+        "expected_final_emotion": ["Anger", "Frustration", "Sarcasm", "Annoyance"],
+        "expect_override": True
+    },
+    {
         "query": "I finally got the massive promotion I spent five years fighting for, and now I just sit alone in my corner office staring blankly at the wall until 8 PM.",
         "expected_lexical_bias": ["Joy", "Excitement", "Pride", "Sadness", "Neutral"],
         "expected_final_emotion": ["Bittersweet", "Sadness", "Despair", "Depression"],

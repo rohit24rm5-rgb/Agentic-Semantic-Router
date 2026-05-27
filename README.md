@@ -45,7 +45,7 @@ To provide the Contextual Nuance Agent with a frame of reference, the system use
 To drastically reduce latency and API costs, the system implements a localized Semantic Router.
 *   **Vectorized Interception:** Before a request reaches the LangGraph orchestration layer, the user's text is vectorized and compared against a ChromaDB collection of previously resolved queries.
 *   **Zero-Routing:** If the cosine similarity of the incoming query matches a cached query above a strict threshold (e.g., 0.95), the system short-circuits. It bypasses the LLM network entirely and instantly returns the cached multi-agent payload.
-*   **Performance Impact:** This reduces response latency from ~3,500ms down to ~100ms.
+*   **Performance Impact:** This reduces P95 cold-start response latency from 8,526ms down to 355ms.
 
 ### 4. Circuit Breaker & Fallback Architecture
 To maximize availability, the system implements a stateful Circuit Breaker pattern.
@@ -61,7 +61,7 @@ The entire backend was built for high throughput.
 ## Performance Metrics
 
 By implementing this architecture, the engine achieves robust performance benchmarks:
-*   **API Latency Reduction:** Semantic Caching drops response times from **~3,500ms** (Standard API Call) down to **~100ms** (Local Vector Retrieval), a **97% reduction in latency** and a 100% reduction in LLM token costs for repeat queries.
+*   **API Latency Reduction:** Semantic Caching drops response times from **~8,526ms** (Cold-Start P95) down to **~355ms** (Cached P95), a **95.8% reduction in latency** and a 100% reduction in LLM token costs for repeat queries.
 *   **Failover Speed:** The Stateful Circuit Breaker detects a provider outage (HTTP 429/500) and routes traffic to the Fallback Chain in **< 50ms**, ensuring continuity during traffic spikes.
 *   **Context Assembly:** Multi-index RAG aggregates context from over 160,000 embedded datapoints in **< 200ms**.
 

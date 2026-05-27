@@ -13,6 +13,14 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.emotion_analysis.core.router import semantic_router
 
+DATASET_A = [
+    "I am feeling very sad today.",
+    "This is the best day of my life!",
+    "I am extremely angry about the recent changes.",
+    "I feel a bit sick and tired.",
+    "What a wonderful surprise!"
+]
+
 DATASET_B = [
     "I feel sad", "I'm feeling down", "I feel depressed", 
     "I am extremely unhappy", "Sorrow fills my heart",
@@ -33,6 +41,13 @@ def run_csv_benchmark():
     
     print("Running Semantic Cache CSV Benchmark...")
     for thresh in THRESHOLDS:
+        # Flush the cache to prevent contamination across threshold iterations
+        semantic_router.collection.delete(where={"timestamp": {"$gt": 0}})
+        
+        # Seed the cache with base queries
+        for query in DATASET_A:
+            semantic_router.save_to_cache(query, {"final_emotion": "test"})
+            
         hits = 0
         latencies = []
         
