@@ -6,7 +6,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.emotion_analysis.core.router import semantic_router, CACHE_TTL
 
-def run_cleanup_test():
+def test_cache_cleanup():
     print("Running Cleanup Integration Test...")
     
     col = semantic_router.collection
@@ -47,6 +47,3 @@ def run_cleanup_test():
     assert expired_id not in remaining_ids, "Expired entry was not deleted!"
     
     print("SUCCESS: ChromaDB server-side $lt cleanup is fully verified.")
-
-if __name__ == "__main__":
-    run_cleanup_test()

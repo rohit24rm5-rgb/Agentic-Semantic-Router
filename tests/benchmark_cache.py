@@ -14,14 +14,19 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.emotion_analysis.core.router import semantic_router
 
 DATASET_B = [
-    "I feel sad",
-    "I'm feeling down",
-    "I feel depressed",
-    "I am extremely unhappy",
-    "Sorrow fills my heart"
-] * 200 # 1000 items
+    "I feel sad", "I'm feeling down", "I feel depressed", 
+    "I am extremely unhappy", "Sorrow fills my heart",
+    "I am so joyful today!", "This is absolutely wonderful.",
+    "I'm completely terrified of what might happen.",
+    "This situation makes me furious.", "I'm feeling very relaxed.",
+    "I just can't take this anymore.", "Everything is going perfectly.",
+    "I'm so anxious about the upcoming test.", "My heart is broken.",
+    "I'm disgusted by this behavior.", "I am incredibly proud of you.",
+    "I feel so lonely right now.", "This surprise is amazing!",
+    "I'm feeling a bit under the weather.", "I am full of hope."
+] * 50 # 1000 items
 
-THRESHOLDS = [0.05, 0.1, 0.15, 0.2, 0.25]
+THRESHOLDS = [0.05, 0.1, 0.15, 0.2, 0.25, 0.95]
 
 def run_csv_benchmark():
     results = []
@@ -42,20 +47,16 @@ def run_csv_benchmark():
         avg_lat = statistics.mean(latencies)
         p95 = statistics.quantiles(latencies, n=100)[94] if len(latencies) > 1 else latencies[0]
         
-        # Calculate simulated token reduction (assuming misses cost tokens, hits don't)
-        token_reduction = hit_rate * 0.77 # Expected 77% token correlation ratio
-        
         results.append({
             "threshold": thresh,
             "cache_hit_rate": round(hit_rate, 4),
             "avg_latency_ms": round(avg_lat, 2),
-            "p95_latency_ms": round(p95, 2),
-            "token_reduction_est": round(token_reduction, 4)
+            "p95_latency_ms": round(p95, 2)
         })
         
     csv_file = os.path.join(os.path.dirname(__file__), "benchmark_results.csv")
     with open(csv_file, mode='w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=["threshold", "cache_hit_rate", "avg_latency_ms", "p95_latency_ms", "token_reduction_est"])
+        writer = csv.DictWriter(f, fieldnames=["threshold", "cache_hit_rate", "avg_latency_ms", "p95_latency_ms"])
         writer.writeheader()
         writer.writerows(results)
         

@@ -1,3 +1,7 @@
+"""
+Locust load testing script.
+Run command: locust -f tests/locustfile.py -u 50 -r 5 --run-time 60s --host=http://localhost:8000
+"""
 from locust import HttpUser, task, between
 import random
 
@@ -11,7 +15,12 @@ class EmotionAnalysisUser(HttpUser):
             "I'm feeling somewhat down and depressed.",
             "I just don't know what to do anymore.",
             "This has been the worst experience of my life.",
-            "I am feeling incredibly peaceful today."
+            "I am feeling incredibly peaceful today.",
+            "I am shaking with anger right now!",
+            "I'm so worried about the future.",
+            "What a beautiful and relaxing morning.",
+            "I'm completely disgusted by that thought.",
+            "Surprise! I didn't expect this at all."
         ]
         
         payload = {

@@ -1,4 +1,5 @@
 import time
+import sys
 import requests
 import statistics
 
@@ -13,7 +14,7 @@ TEST_QUERIES = [
     "Wow, I didn't expect to actually win. This is crazy!"
 ]
 
-def run_latency_test(iterations: int = 5):
+def run_fastapi_latency_test(iterations: int = 5):
     print(f"Starting Latency Benchmarks ({iterations} iterations per query)...")
     print("-" * 50)
     
@@ -52,5 +53,7 @@ def run_latency_test(iterations: int = 5):
         print("=" * 50)
 
 if __name__ == "__main__":
-    print("Ensure Ollama/Groq FastAPI server is running before executing.")
-    # run_latency_test()
+    print("Ensure Groq FastAPI server is running before executing.")
+    with open("benchmark_results.txt", "w") as f:
+        sys.stdout = f
+        run_fastapi_latency_test()
