@@ -8,7 +8,7 @@ The easiest way to run the Agentic Semantic Router is via Docker.
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/sitanshukr08/Agentic-Semantic-Router.git
+   git clone https://github.com/rohit24rm5-rgb/Agentic-Semantic-Router.git
    cd Agentic-Semantic-Router
    ```
 2. **Configure Environment:**
