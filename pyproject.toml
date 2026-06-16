@@ -3,7 +3,7 @@ name = "emotion_analysis"
 version = "0.1.0"
 description = "AI Engineering Overhaul of Emotion Analysis project using LangGraph, Groq, ChromaDB, and FastAPI."
 authors = [
-    { name = "Sitanshu", email = "sitanshukumar65@gmail.com" }
+    { name = "Rohit Singh", email = "rohit24.rm5@gmail.com" }
 ]
 dependencies = [
     "fastapi>=0.111.0",
@@ -17,7 +17,8 @@ dependencies = [
     "kaggle>=1.6.14",
     "pydantic>=2.7.4",
     "python-dotenv>=1.0.1",
-    "pandas>=2.2.2"
+    "pandas>=2.2.2",
+    "langgraph-checkpoint-sqlite>=1.0.0"
 ]
 requires-python = ">=3.10"
 
@@ -32,3 +33,6 @@ dev = [
     "ruff>=0.4.10",
     "black>=24.4.2"
 ]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/emotion_analysis"]
